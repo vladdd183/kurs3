@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://username:password@db:5432/todo_app
+    networks:
+      - my_network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '5000:5000'
+    environment:
+      - API_URL=http://localhost:3000
+    networks:
+      - my_network
+
+  db:
+    image: postgres:13
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/procedures.sql:/docker-entrypoint-initdb.d/procedures.sql
+      # - ./db/triggers.sql:/docker-entrypoint-initdb.d/triggers.sql
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=todo_app
+    networks:
+      - my_network
+
+
+
+networks:
+  my_network:
